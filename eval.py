@@ -274,6 +274,8 @@ with right_col:
     display_role_info(predicted_roles, "Predicted Fine-Grained Roles")
 
 
+    
+
     with st.form("eval_form"):
         row = article_df.iloc[st.session_state.entity_index]
         st.markdown("### 📝 Evaluation")
@@ -286,6 +288,8 @@ with right_col:
         if submitted:
             lang = row["lang"]
             output_file = f"responses/responses_{lang}.csv"
+
+            st.write("saving")
             # Convert list to string for CSV
             predicted_roles_str = ", ".join(predicted_roles) if isinstance(predicted_roles, list) else str(predicted_roles)
 
