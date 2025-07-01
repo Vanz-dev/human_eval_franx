@@ -274,9 +274,6 @@ with right_col:
     display_role_info(predicted_roles, "Predicted Fine-Grained Roles")
 
 
-    
-
-    
 
     # Initialize flag once at the top of your app
     if "just_submitted" not in st.session_state:
@@ -314,12 +311,10 @@ with right_col:
                 "confidence": confidence
             }])
 
-            df = df.append(pd.DataFrame(data=response))
-
-            df.to_csv(output_file, mode="a", header=False, index=False, encoding="utf-8")
-            st.session_state.just_submitted = True
-            st.session_state.entity_index += 1
-            st.rerun()
+            response.to_csv("output.csv")
+            #st.session_state.just_submitted = True
+            #st.session_state.entity_index += 1
+            #st.rerun()
 
     # Show success message *after* rerun
     if st.session_state.just_submitted:
