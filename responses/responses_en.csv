@@ -1,0 +1,3 @@
+session_name,timestamp,article_id,lang,entity_mention,main_role,predicted_roles,makes_sense,issues,multi_labels,confidence
+,2025-07-01T15:00:37.210525,EN_CC_200033.txt,en,Greta Thunberg,Antagonist,"{'Deceiver', 'Corrupt'}",Yes,Incorrect entity,One,3
+,2025-07-01T15:00:39.032811,EN_CC_200033.txt,en,Thunberg,Antagonist,{'Deceiver'},Yes,Incorrect entity,One,3

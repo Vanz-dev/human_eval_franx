@@ -5,6 +5,13 @@ import ast
 import html
 import json
 from datetime import datetime
+import base64
+import requests
+import pandas as pd
+from io import StringIO
+from datetime import datetime
+
+
 
 # ─── Page Setup ─────────────────────────────────────────────────────
 st.set_page_config(page_title="Franx Evaluation", layout="wide")
@@ -258,9 +265,6 @@ with right_col:
     st.markdown("<div class='sticky-eval'>", unsafe_allow_html=True)
 
     st.markdown("### 📝 Evaluation")
- 
-
-    
 
 
 
@@ -269,39 +273,41 @@ with right_col:
 
     display_role_info(predicted_roles, "Predicted Fine-Grained Roles")
 
+
     with st.form("eval_form"):
         st.markdown("### 📝 Evaluation")
-
         makes_sense = st.radio("✅ Does the annotation make sense?", ["Yes", "No", "Unsure"])
-
-
-        issues = st.radio("❗ What’s wrong?", 
-                              ["Incorrect entity", "Incorrect fine-grained roles", "Not applicable"])
-            
-        multi_labels = st.radio("(Answer if the entity has multiple fine-grained roles) How many labels are correct?",["One", "Two", "Three or more", "Not applicable"])
-
+        issues = st.radio("❗ What’s wrong?", ["Incorrect entity", "Incorrect fine-grained roles", "Not applicable"])
+        multi_labels = st.radio("(Answer if the entity has multiple fine-grained roles) How many labels are correct?", ["zero", "One", "Two", "Three or more", "Not applicable"])
         confidence = st.slider("🔍 Confidence in your answer", 1, 5, 3)
-
         submitted = st.form_submit_button("Submit")
 
         if submitted:
-            response = {
+            lang = row["lang"]
+            output_file = f"responses/responses_{lang}.csv"
+            # Convert list to string for CSV
+            predicted_roles_str = ", ".join(predicted_roles) if isinstance(predicted_roles, list) else str(predicted_roles)
+
+            response = pd.DataFrame([{
                 "session_name": session_name,
                 "timestamp": datetime.now().isoformat(),
                 "article_id": article_id,
-                "lang": row["lang"],
+                "lang": lang,
                 "entity_mention": mention,
                 "main_role": main_role,
-                "predicted_roles": predicted_roles,
+                "predicted_roles": predicted_roles_str,
                 "makes_sense": makes_sense,
                 "issues": issues,
                 "multi_labels": multi_labels,
                 "confidence": confidence
-            }
+            }])
 
-            output_file = f"responses_{row['lang']}.csv"
-            pd.DataFrame([response]).to_csv(output_file, mode="a", header=not os.path.exists(output_file), index=False)
-
-            st.success("✅ Response recorded!")
+            response.to_csv(output_file, mode="a", header=False, index=False, encoding="utf-8")
+            st.success(f"✅ Response saved to {output_file}")
             st.session_state.entity_index += 1
             st.rerun()
+
+                
+
+
+        
