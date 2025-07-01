@@ -1,0 +1,134 @@
+[
+  {
+    "coarse_role": "Protagonist",
+    "fine_role": "Guardian",
+    "description": "Heroes or guardians who protect values or communities, ensuring safety and upholding justice. They often take on roles such as law enforcement officers, soldiers, or community leaders (e.g., climate change advocacy community leaders).",
+    "example": "Police officers protecting citizens during a crisis, firefighters saving lives during a disaster, community leaders standing against crime or leaders standing up for action to address climate change."
+  },
+  {
+    "coarse_role": "Protagonist",
+    "fine_role": "Martyr",
+    "description": "Martyrs or saviors who sacrifice their well-being, or even their lives, for a greater good or cause. These individuals are often celebrated for their selflessness and dedication. This is mostly in politics, not in CC.",
+    "example": "Civil rights leaders like Martin Luther King Jr., who was assassinated while fighting for equality, or journalists who risk their lives to report on corruption and injustice."
+  },
+  {
+    "coarse_role": "Protagonist",
+    "fine_role": "Peacemaker",
+    "description": "Individuals who advocate for harmony, working tirelessly to resolve conflicts and bring about peace. They often engage in diplomacy, negotiations, and mediation. This is mostly in politics, not in CC.",
+    "example": "Nelson Mandela’s efforts to reconcile South Africa post-apartheid, or diplomats working to broker peace deals between conflicting nations."
+  },
+  {
+    "coarse_role": "Protagonist",
+    "fine_role": "Rebel",
+    "description": "Rebels, revolutionaries, or freedom fighters who challenge the status quo and fight for significant change or liberation from oppression. They are often seen as champions of justice and freedom.",
+    "example": "Leaders of independence movements like Mahatma Gandhi in India, or modern-day activists fighting for democratic reforms in authoritarian regimes. In CC domain, this includes characters such as Greta Thunberg, or persons who, for instance, chain themselves to trees to prevent deforestation."
+  },
+  {
+    "coarse_role": "Protagonist",
+    "fine_role": "Underdog",
+    "description": "Entities who are considered unlikely to succeed due to their disadvantaged position but strive against greater forces and obstacles. Their stories often inspire others.",
+    "example": "Grassroots political candidates overcoming well-funded incumbents, or small nations standing up to larger, more powerful countries. In CC, this could included NEs portrayed as underfunded organizations that are framed as showing promise to make positive impact on CC."
+  },
+  {
+    "coarse_role": "Protagonist",
+    "fine_role": "Virtuous",
+    "description": "Individuals portrayed as virtuous, righteous, or noble, who are seen as fair, just, and upholding high moral standards. They are often role models and figures of integrity.",
+    "example": "Judges known for their fairness, or politicians with a reputation for honesty and ethical behavior. In CC, this includes leaders standing up for environmental ethical values to protect planet Earth, or activists pushing for environmental sustainability."
+  },
+  {
+    "coarse_role": "Antagonist",
+    "fine_role": "Instigator",
+    "description": "Individuals or groups initiating conflict, often seen as the primary cause of tension and discord. They may provoke violence or unrest.",
+    "example": "Politicians using inflammatory rhetoric to incite violence, or groups instigating protests to destabilize governments. In CC, this could also include Greta Thunberg or activists chaining themselves to trees. In the previous example, they were portrayed in positive light as rebels. However, they could just as well be framed in a negative light if they are being portrayed as troublemakers and instigators of problems, and in such a scenario, they would also take the sub-role of Sabateur."
+  },
+  {
+    "coarse_role": "Antagonist",
+    "fine_role": "Conspirator",
+    "description": "Those involved in plots and secret plans, often working behind the scenes to undermine or deceive others. They engage in covert activities to achieve their goals.",
+    "example": "Figures involved in political scandals or espionage, such as Watergate conspirators or modern cyber espionage cases. In CC, this could manifest as persons or organizations conspiring to bypass environmental regulations to turn up a profit."
+  },
+  {
+    "coarse_role": "Antagonist",
+    "fine_role": "Tyrant",
+    "description": "Tyrants and corrupt officials who abuse their power, ruling unjustly and oppressing those under their control. They are often characterized by their authoritarian rule and exploitation.",
+    "example": "Dictators like Kim Jong-un in North Korea, or corrupt officials embezzling public funds and suppressing dissent."
+  },
+  {
+    "coarse_role": "Antagonist",
+    "fine_role": "Foreign Adversary",
+    "description": "Entities from other nations or regions creating geopolitical tension and acting against the interests of another country. They are often depicted as threats to national security. This is mostly in politics, not in CC.",
+    "example": "Rival nations involved in espionage or military confrontations, such as the Cold War adversaries, or countries accused of election interference. In CC, foreign adversaries could include portrayal of how other countries are not adhering to CC policies (e.g., China refuses to adhere to CC policies resulting in 20% increase in CO2 emissions."
+  },
+  {
+    "coarse_role": "Antagonist",
+    "fine_role": "Traitor",
+    "description": "Individuals who betray a cause or country, often seen as disloyal and treacherous. Their actions are viewed as a significant breach of trust. This is mostly in politics, not in CC.",
+    "example": "Whistleblowers revealing sensitive information for personal gain, or soldiers defecting to enemy forces. Note that if whistleblowers are portrayed in a positive light, their role would be Virtuous. This could equally apply to both politics and CC."
+  },
+  {
+    "coarse_role": "Antagonist",
+    "fine_role": "Spy",
+    "description": "Spies or double agents accused of espionage, gathering and transmitting sensitive information to a rival or enemy. They operate in secrecy and deception. This is mostly in politics, not in CC.",
+    "example": "Historical figures like Aldrich Ames, who spied for the Soviet Union, or contemporary cases of corporate espionage."
+  },
+  {
+    "coarse_role": "Antagonist",
+    "fine_role": "Saboteur",
+    "description": "Saboteurs who deliberately damage or obstruct systems, processes, or organizations to cause disruption or failure. They aim to weaken or destroy targets from within.",
+    "example": "Insiders tampering with critical infrastructure, or activists sabotaging industrial operations."
+  },
+  {
+    "coarse_role": "Antagonist",
+    "fine_role": "Corrupt",
+    "description": "Individuals or entities that engage in unethical or illegal activities for personal gain, prioritizing profit or power over ethics. This includes corrupt politicians, business leaders, and officials.",
+    "example": "Companies involved in environmental pollution, executives engaged in massive financial fraud, or politicians accepting bribes and engaging in graft."
+  },
+  {
+    "coarse_role": "Antagonist",
+    "fine_role": "Incompetent",
+    "description": "Entities causing harm through ignorance, lack of skill, or incompetence. This includes people committing foolish acts or making poor decisions due to lack of understanding or expertise. Their actions, often unintentional, result in significant negative consequences.",
+    "example": "Leaders making reckless policy decisions without proper understanding, officials mishandling crisis responses, or managers whose poor judgment leads to organizational failures."
+  },
+  {
+    "coarse_role": "Antagonist",
+    "fine_role": "Terrorist",
+    "description": "Terrorists, mercenaries, insurgents, fanatics, or extremists engaging in violence and terror to further ideological ends, often targeting civilians. They are viewed as significant threats to peace and security. This is mostly in politics, not in CC.",
+    "example": "Groups like ISIS or Al-Qaeda carrying out attacks, or lone-wolf terrorists committing acts of violence."
+  },
+  {
+    "coarse_role": "Antagonist",
+    "fine_role": "Deceiver",
+    "description": "Deceivers, manipulators, or propagandists who twist the truth, spread misinformation, and manipulate public perception for their own benefit. They undermine trust and truth.",
+    "example": "Politicians spreading false information for political gain, or media outlets engaging in propaganda."
+  },
+  {
+    "coarse_role": "Antagonist",
+    "fine_role": "Bigot",
+    "description": "Individuals accused of hostility or discrimination against specific groups. This includes entities committing acts falling under racism, sexism, homophobia, Antisemitism, Islamophobia, or any kind of hate speech. This is mostly in politics, not in CC.",
+    "example": ""
+  },
+  {
+    "coarse_role": "Innocent",
+    "fine_role": "Forgotten",
+    "description": "Marginalized or overlooked groups who are often ignored by society and do not receive the attention or support they need. This includes refugees, who face systemic neglect and exclusion.",
+    "example": "Indigenous populations facing ongoing discrimination; homeless individuals struggling without adequate support; refugees fleeing conflict or persecution."
+  },
+  {
+    "coarse_role": "Innocent",
+    "fine_role": "Exploited",
+    "description": "Individuals or groups used for others’ gain, often without their consent and with significant detriment to their wellbeing. They are often victims of labor exploitation, trafficking, or economic manipulation.",
+    "example": "Workers in sweatshops; victims of human trafficking; communities suffering from corporate exploitation of natural resources."
+  },
+  {
+    "coarse_role": "Innocent",
+    "fine_role": "Victim",
+    "description": "People cast as victims due to circumstances beyond their control, specifically in two categories: (1) victims of physical harm, including natural disasters, acts of war, terrorism, mugging, physical assault, ... etc., and (2) victims of economic harm, such as sanctions, blockades, and boycotts. Their experiences evoke sympathy and calls for justice, focusing on either physical or economic suffering.",
+    "example": "Victims of natural disasters, such as hurricanes or earthquakes; individuals affected by violent crimes. Victims of economic blockades, sanctions, or boycotts."
+  },
+  {
+    "coarse_role": "Innocent",
+    "fine_role": "Scapegoat",
+    "description": "Entities blamed unjustly for problems or failures, often to divert attention from the real causes or culprits. They are made to bear the brunt of criticism and punishment without just cause.",
+    "example": "Minority groups blamed for economic problems; political opponents, accused of provoking national strife, without evidence."
+  }
+]
