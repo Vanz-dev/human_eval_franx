@@ -275,6 +275,7 @@ with right_col:
 
 
     with st.form("eval_form"):
+        row = article_df.iloc[st.session_state.entity_index]
         st.markdown("### 📝 Evaluation")
         makes_sense = st.radio("✅ Does the annotation make sense?", ["Yes", "No", "Unsure"])
         issues = st.radio("❗ What’s wrong?", ["Incorrect entity", "Incorrect fine-grained roles", "Not applicable"])
