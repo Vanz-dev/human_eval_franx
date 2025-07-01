@@ -276,21 +276,28 @@ with right_col:
 
     
 
+    
+
+    # Initialize flag once at the top of your app
+    if "just_submitted" not in st.session_state:
+        st.session_state.just_submitted = False
+
+    # Define the current row and lang safely
+    row = article_df.iloc[st.session_state.entity_index]
+    lang = row["lang"]
+    os.makedirs("responses", exist_ok=True)
+    output_file = f"responses/responses_{lang}.csv"
+
+    # Form block
     with st.form("eval_form"):
-        row = article_df.iloc[st.session_state.entity_index]
         st.markdown("### 📝 Evaluation")
         makes_sense = st.radio("✅ Does the annotation make sense?", ["Yes", "No", "Unsure"])
         issues = st.radio("❗ What’s wrong?", ["Incorrect entity", "Incorrect fine-grained roles", "Not applicable"])
         multi_labels = st.radio("(Answer if the entity has multiple fine-grained roles) How many labels are correct?", ["zero", "One", "Two", "Three or more", "Not applicable"])
         confidence = st.slider("🔍 Confidence in your answer", 1, 5, 3)
+
         submitted = st.form_submit_button("Submit")
-
         if submitted:
-            lang = row["lang"]
-            output_file = f"responses/responses_{lang}.csv"
-
-            st.write("saving")
-            # Convert list to string for CSV
             predicted_roles_str = ", ".join(predicted_roles) if isinstance(predicted_roles, list) else str(predicted_roles)
 
             response = pd.DataFrame([{
@@ -307,14 +314,12 @@ with right_col:
                 "confidence": confidence
             }])
 
-            st.write("Saving response for:", mention, main_role, predicted_roles)
-
             response.to_csv(output_file, mode="a", header=False, index=False, encoding="utf-8")
-            st.success(f"✅ Response saved to {output_file}")
+            st.session_state.just_submitted = True
             st.session_state.entity_index += 1
-            #st.rerun()
+            st.rerun()
 
-                
-
-
-        
+    # Show success message *after* rerun
+    if st.session_state.just_submitted:
+        st.success("✅ Response recorded!")
+        st.session_state.just_submitted = False
