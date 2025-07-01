@@ -116,12 +116,38 @@ if "last_response" not in st.session_state:
 # ─── Instructions ──────────────────────────────────────────────────
 with st.expander("📘 Instructions for Evaluators", expanded=False):
     st.markdown("""
-    ##### 1. 🌍 Select a Language (Sidebar)
-    ##### 2. 👤 Enter your name or session ID
-    ##### 3. 📄 Read the article and highlight
-    ##### 4. ✅ Annotate carefully
-    ##### 5. 📥 Download and continue
+    ##### 1. 🌍 Select a Language
+    Use the sidebar dropdown to choose:
+    - **en** – English  
+    - **hi** – Hindi  
+    - **ru** – Russian  
+    - **bg** – Bulgarian  
+    - **pt** – Portuguese
+
+    ##### 2. 👤 Identify Yourself
+    Enter your **name or session ID** and press `Enter` to begin.
+
+    ##### 3. 📄 Review the Article Carefully
+    Pay attention to:
+    - 🔸 **Highlighted entity**
+    - 🔹 **Fine-grained role labels**  
+      _Click to expand each to view descriptions and examples._
+
+    ##### 4. ✅ Answer Thoughtfully
+    - Select the label that best fits the context.  
+    - You can choose **Unsure** or **Not Applicable** if needed.
+
+    ##### 5. ⚠️ Submitting Your Response
+    - Once you click **Submit**, your response is saved and **cannot be edited**.  
+    - Submit only when you're confident.  
+    - You may skip to the next entity or article if needed.
+
+    ##### 6. 🧘 Flexibility & Exit
+    - You're **not required** to annotate everything.  
+    - Continue for as long as you're comfortable.  
+    - Close the tab anytime to exit.
     """)
+
 
 st.markdown("#### 👤 Enter your name:")
 session_name = st.text_input("", value="", placeholder="e.g. John")
