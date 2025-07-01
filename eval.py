@@ -125,7 +125,7 @@ with st.expander("📘 Instructions for Evaluators", expanded=False):
     - **pt** – Portuguese
 
     ##### 2. 👤 Identify Yourself
-    Enter your **name or session ID** and press `Enter` to begin.
+    Enter your **name** and press `Enter` to begin.
 
     ##### 3. 📄 Review the Article Carefully
     Pay attention to:
@@ -175,6 +175,19 @@ article_ids = list(grouped.groups.keys())
 
 if st.session_state.article_index >= len(article_ids):
     st.success("🎉 You've completed all articles in this language!")
+    if session_name and "responses" in st.session_state and st.session_state.responses:
+        st.markdown("### ✅ Download Your Responses")
+        response_df = pd.DataFrame(st.session_state.responses)
+        csv = response_df.to_csv(index=False).encode('utf-8')
+
+        st.download_button(
+            label="📥 Download All Responses",
+            data=csv,
+            file_name=f"responses_{session_name}.csv",
+            mime='text/csv'
+        )
+
+    
     st.stop()
 
 current_article_id = article_ids[st.session_state.article_index]
