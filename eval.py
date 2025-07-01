@@ -300,7 +300,11 @@ with right_col:
             }
 
             output_file = f"responses_{row['lang']}.csv"
+            
             pd.DataFrame([response]).to_csv(output_file, mode="a", header=not os.path.exists(output_file), index=False)
+
+
+
 
             st.success("✅ Response recorded!")
             st.session_state.entity_index += 1
