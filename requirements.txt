@@ -1,4 +1,3 @@
 streamlit
 pandas
-ast
-html
+html5lib
