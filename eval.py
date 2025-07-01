@@ -312,7 +312,7 @@ with right_col:
             response.to_csv(output_file, mode="a", header=False, index=False, encoding="utf-8")
             st.success(f"✅ Response saved to {output_file}")
             st.session_state.entity_index += 1
-            st.rerun()
+            #st.rerun()
 
                 
 
