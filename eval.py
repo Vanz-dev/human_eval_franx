@@ -5,13 +5,6 @@ import ast
 import html
 import json
 from datetime import datetime
-import base64
-import requests
-import pandas as pd
-from io import StringIO
-from datetime import datetime
-
-
 
 # ─── Page Setup ─────────────────────────────────────────────────────
 st.set_page_config(page_title="Franx Evaluation", layout="wide")
@@ -42,12 +35,10 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-
 # ─── Load & Cache Data ─────────────────────────────────────────────
 @st.cache_data
 def load_data():
-    df = pd.read_csv("combined_all.csv")
-    #df["fine_grained_roles"] = df["fine_grained_roles"].apply(ast.literal_eval)
+    df = pd.read_csv("combined_all.csv", encoding="utf-8")
     df["predicted_fine_margin"] = df["predicted_fine_margin"].apply(ast.literal_eval)
     return df
 
@@ -108,81 +99,52 @@ def display_role_info(role_list, title):
             st.markdown(f"**Description:** {info.get('description', 'No description available.')}")
             st.markdown(f"**Example:** _{info.get('example', 'No example available.')}_")
 
-# ─── Session State ──────────────────────────────────────────────────
-
-
-with st.expander("📘 Instructions for Evaluators", expanded=False):
-    st.markdown("""
-    ##### 1. 🌍 Select a Language
-    Use the sidebar dropdown to choose:
-    - **en** – English  
-    - **hi** – Hindi  
-    - **ru** – Russian  
-    - **bg** – Bulgarian  
-    - **pt** – Portuguese
-
-    ##### 2. 👤 Identify Yourself
-    Enter your **name or session ID** and press `Enter` to begin.
-
-    ##### 3. 📄 Review the Article Carefully
-    Pay attention to:
-    - 🔸 **Highlighted entity**
-    - 🔹 **Fine-grained role labels**  
-      _Click to expand each to view descriptions and examples._
-
-    ##### 4. ✅ Answer Thoughtfully
-    - Select the label that best fits the context.  
-    - You can choose **Unsure** or **Not Applicable** if needed.
-
-    ##### 5. ⚠️ Submitting Your Response
-    - Once you click **Submit**, your response is saved and **cannot be edited**.  
-    - Submit only when you're confident.  
-    - You may skip to the next entity or article if needed.
-
-    ##### 6. 🧘 Flexibility & Exit
-    - You're **not required** to annotate everything.  
-    - Continue for as long as you're comfortable.  
-    - Close the tab anytime to exit.
-    """)
-
-
-
+# ─── Session Setup ─────────────────────────────────────────────────
 if "article_index" not in st.session_state:
     st.session_state.article_index = 0
 if "entity_index" not in st.session_state:
     st.session_state.entity_index = 0
 if "lang" not in st.session_state:
     st.session_state.lang = df["lang"].unique()[0]
+if "responses" not in st.session_state:
+    st.session_state.responses = []
+if "just_submitted" not in st.session_state:
+    st.session_state.just_submitted = False
+if "last_response" not in st.session_state:
+    st.session_state.last_response = None
 
-st.markdown("""
-<div style='background-color:#eef2ff; border-left: 6px solid #6366f1; padding: 12px 20px; border-radius: 10px; margin-top: 1rem; box-shadow: 0 1px 4px rgba(0,0,0,0.1);'>
-<h4 style='margin:0; color:#3730a3;'>👤 Please enter your <strong>name</strong> for this evaluation:</h4>
-<p style='margin-top:6px; color:#6366f1; font-size:14px;'>Press Enter to begin</p>
-</div>
-""", unsafe_allow_html=True)
+# ─── Instructions ──────────────────────────────────────────────────
+with st.expander("📘 Instructions for Evaluators", expanded=False):
+    st.markdown("""
+    ##### 1. 🌍 Select a Language (Sidebar)
+    ##### 2. 👤 Enter your name or session ID
+    ##### 3. 📄 Read the article and highlight
+    ##### 4. ✅ Annotate carefully
+    ##### 5. 📥 Download and continue
+    """)
 
+st.markdown("#### 👤 Enter your name:")
 session_name = st.text_input("", value="", placeholder="e.g. John")
+if not session_name:
+    st.stop()
 
-if session_name:
-    st.markdown(f"**Evaluator:** {session_name}")
-# ─── Sidebar ────────────────────────────────────────────────────────
+# ─── Sidebar Language Picker ───────────────────────────────────────
 st.sidebar.title("🔧 Settings")
 st.sidebar.selectbox("🌍 Select Language", df["lang"].unique(), key="lang")
 
-# ─── Filter and Group Articles ──────────────────────────────────────
-lang_df = df[df["lang"] == st.session_state.lang].reset_index(drop=True)
-grouped = lang_df.groupby("article_id")
-# Track previous language selection
+# ─── Handle Language Switch ─────────────────────────────────────────
 if "previous_lang" not in st.session_state:
     st.session_state.previous_lang = st.session_state.lang
 
-# Reset progression if language changes
 if st.session_state.lang != st.session_state.previous_lang:
     st.session_state.article_index = 0
     st.session_state.entity_index = 0
     st.session_state.previous_lang = st.session_state.lang
     st.rerun()
 
+# ─── Article & Entity Setup ─────────────────────────────────────────
+lang_df = df[df["lang"] == st.session_state.lang].reset_index(drop=True)
+grouped = lang_df.groupby("article_id")
 article_ids = list(grouped.groups.keys())
 
 if st.session_state.article_index >= len(article_ids):
@@ -192,13 +154,12 @@ if st.session_state.article_index >= len(article_ids):
 current_article_id = article_ids[st.session_state.article_index]
 article_df = grouped.get_group(current_article_id).reset_index(drop=True)
 
-# ─── Check Entity Bounds ────────────────────────────────────────────
 if st.session_state.entity_index >= len(article_df):
     st.session_state.article_index += 1
     st.session_state.entity_index = 0
     st.rerun()
 
-# ─── Fetch Current Entity ───────────────────────────────────────────
+# ─── Current Entity Row ─────────────────────────────────────────────
 row = article_df.iloc[st.session_state.entity_index]
 context = row["text"]
 mention = row["entity_mention"]
@@ -207,33 +168,16 @@ end = row["end_offset"]
 main_role = row["p_main_role"]
 predicted_roles = row["predicted_fine_margin"]
 article_id = row["article_id"]
+lang = row["lang"]
 
-# ─── Build Highlighted Record ───────────────────────────────────────
-record = {
-    "start_offset": start,
-    "end_offset": end,
-    "predicted_fine_margin": predicted_roles
-}
-records = [record]
-highlighted_html = highlight_entities(context, records, "predicted_fine_margin",)
-
+record = {"start_offset": start, "end_offset": end, "predicted_fine_margin": predicted_roles}
+highlighted_html = highlight_entities(context, [record], "predicted_fine_margin")
 
 # ─── Layout ─────────────────────────────────────────────────────────
 left_col, right_col = st.columns([1.4, 1])
-
 with left_col:
-    article_num = st.session_state.article_index + 1
-    total_articles = len(article_ids)
-    entity_num = st.session_state.entity_index + 1
-    total_entities = len(article_df)
-
-    st.markdown(f"**Language:** {row['lang']}  &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; "
-                f"**Article {article_num} of {total_articles}**  &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; "
-                f"**Entity {entity_num} of {total_entities} in this article**", unsafe_allow_html=True)
-
+    st.markdown(f"**Language:** {lang} | **Article {st.session_state.article_index+1}/{len(article_ids)}** | **Entity {st.session_state.entity_index+1}/{len(article_df)}**")
     st.markdown("### 📄 Article Context")
-    #st.markdown(f"<div style='background-color:#f9fafb;padding:1rem;border-radius:8px;max-height:900px;overflow-y:auto;font-size:15px;line-height:1.6;'>{highlighted_html}</div>", unsafe_allow_html=True)
-    # Assuming `highlighted_html` holds your entity-highlighted article
     st.markdown("""
     <style>
     .article-box {
@@ -249,79 +193,63 @@ with left_col:
     }
     </style>
     """, unsafe_allow_html=True)
-
     st.markdown(f"<div class='article-box'>{highlighted_html}</div>", unsafe_allow_html=True)
-st.markdown("""
-<style>
-.sticky-eval {
-    position: -webkit-sticky;
-    position: sticky;
-    top: 1rem;
-    align-self: flex-start;
-}
-</style>
-""", unsafe_allow_html=True)
+
 with right_col:
-    st.markdown("<div class='sticky-eval'>", unsafe_allow_html=True)
-
     st.markdown("### 📝 Evaluation")
-
-
-
     st.markdown(f"**Entity Mention**: <span style='color:#007BFF; font-weight:600;'>{html.escape(mention)}</span>", unsafe_allow_html=True)
     st.markdown(f"**Main Role**: <span style='background:#cbd5e1;padding:4px 8px;border-radius:5px;margin:3px;display:inline-block;'>{html.escape(main_role)}</span>", unsafe_allow_html=True)
-
     display_role_info(predicted_roles, "Predicted Fine-Grained Roles")
 
-
-    
-
-    
-
-    # Initialize flag once at the top of your app
-    if "just_submitted" not in st.session_state:
-        st.session_state.just_submitted = False
-
-    # Define the current row and lang safely
-    row = article_df.iloc[st.session_state.entity_index]
-    lang = row["lang"]
-    os.makedirs("responses", exist_ok=True)
-    output_file = f"responses/responses_{lang}.csv"
-
-    # Form block
     with st.form("eval_form"):
-        st.markdown("### 📝 Evaluation")
         makes_sense = st.radio("✅ Does the annotation make sense?", ["Yes", "No", "Unsure"])
         issues = st.radio("❗ What’s wrong?", ["Incorrect entity", "Incorrect fine-grained roles", "Not applicable"])
         multi_labels = st.radio("(Answer if the entity has multiple fine-grained roles) How many labels are correct?", ["zero", "One", "Two", "Three or more", "Not applicable"])
         confidence = st.slider("🔍 Confidence in your answer", 1, 5, 3)
 
-
-        clickSubmit = st.form_submit_button('Submit')
-        if clickSubmit == True:
-            predicted_roles_str = ", ".join(predicted_roles) if isinstance(predicted_roles, list) else str(predicted_roles)
-            response = pd.DataFrame([{
+        if st.form_submit_button("Submit"):
+            response = {
                 "session_name": session_name,
                 "timestamp": datetime.now().isoformat(),
                 "article_id": article_id,
                 "lang": lang,
                 "entity_mention": mention,
                 "main_role": main_role,
-                "predicted_roles": predicted_roles_str,
+                "predicted_roles": ", ".join(predicted_roles),
                 "makes_sense": makes_sense,
                 "issues": issues,
                 "multi_labels": multi_labels,
                 "confidence": confidence
-            }])
-
-            df = df.append(pd.DataFrame(data=response))
-
-            df.to_csv(output_file, mode="a", header=False, index=False, encoding="utf-8")
+            }
+            st.session_state.responses.append(response)
+            st.session_state.last_response = response
             st.session_state.just_submitted = True
-            st.session_state.entity_index += 1
-            st.rerun()
+            st.success("✅ Response submitted. Scroll down to continue.")
 
-    # Show success message *after* rerun
-    if st.session_state.just_submitted:
-        st.success("✅ Response recorded!")
+# ─── Download & Continue Block ─────────────────────────────────────
+if st.session_state.just_submitted and st.session_state.last_response:
+    st.markdown("---")
+    st.markdown("### ✅ Done Evaluating?")
+
+    response_df = pd.DataFrame(st.session_state.responses)
+    csv = response_df.to_csv(index=False).encode("utf-8")
+
+    st.download_button(
+        label="📥 Download All Responses",
+        data=csv,
+        file_name=f"responses_{session_name}.csv",
+        mime="text/csv"
+    )
+
+    # Save last response locally
+    os.makedirs("responses", exist_ok=True)
+    local_path = f"responses/responses_{lang}.csv"
+    pd.DataFrame([st.session_state.last_response]).to_csv(
+        local_path, mode="a", header=not os.path.exists(local_path), index=False
+    )
+
+    if st.button("➡️ Continue to Next"):
+        st.session_state.entity_index += 1
         st.session_state.just_submitted = False
+        st.session_state.last_response = None
+        st.rerun()
