@@ -7,7 +7,7 @@ import json
 from datetime import datetime
 
 # ─── Page Setup ─────────────────────────────────────────────────────
-st.set_page_config(page_title="Fine-Grained Role Evaluation", layout="wide")
+st.set_page_config(page_title="Franx Evaluation", layout="wide")
 
 st.markdown("""
 <style>
@@ -104,7 +104,7 @@ def display_role_info(role_list, title):
 # ─── Session State ──────────────────────────────────────────────────
 
 
-with st.expander("📘 Instructions for Annotators", expanded=False):
+with st.expander("📘 Instructions for Evaluators", expanded=False):
     st.markdown("""
     ##### 1. 🌍 Select a Language
     Use the sidebar dropdown to choose:
