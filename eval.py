@@ -99,6 +99,9 @@ def display_role_info(role_list, title):
             st.markdown(f"**Description:** {info.get('description', 'No description available.')}")
             st.markdown(f"**Example:** _{info.get('example', 'No example available.')}_")
 
+
+
+
 # ─── Session Setup ─────────────────────────────────────────────────
 if "article_index" not in st.session_state:
     st.session_state.article_index = 0
@@ -152,6 +155,7 @@ with st.expander("📘 Instructions for Evaluators", expanded=False):
     - Kindly send the downloaded file to the project team for analysis.
     """)
 
+# ——— Idea 2: Label-wise breakdown of evaluation questions ———
 
 st.markdown("#### 👤 Enter your name:")
 session_name = st.text_input("", value="", placeholder="e.g. John")
@@ -176,6 +180,67 @@ if st.session_state.lang != st.session_state.previous_lang:
 lang_df = df[df["lang"] == st.session_state.lang].reset_index(drop=True)
 grouped = lang_df.groupby("article_id")
 article_ids = list(grouped.groups.keys())
+
+# ——— Add this after loading and filtering the language-specific DataFrame ———
+lang_df = df[df["lang"] == st.session_state.lang].reset_index(drop=True)
+grouped = lang_df.groupby("article_id")
+article_ids = list(grouped.groups.keys())
+
+# ——— Define number of segments per language ———
+language_segments = {
+    "bg": 1,   # 10 articles, 14 entities
+    "pt": 1,   # low annotator coverage
+    "hi": 5,   # 142 entities → ~28 per segment
+    "ru": 3,   # 45 entities → ~15 per segment
+    "en": 4,   # 58 entities → ~14-15 per segment
+}
+
+NUM_SEGMENTS = language_segments.get(st.session_state.lang, 1)
+
+# Compute total number of entities for the selected language
+total_entities = len(lang_df)
+entities_per_segment = total_entities // NUM_SEGMENTS + (total_entities % NUM_SEGMENTS > 0)
+
+# Compute total number of entities per article
+article_entity_counts = lang_df.groupby("article_id").size().reset_index(name="entity_count")
+article_entity_counts = article_entity_counts.sort_values("article_id")
+
+# Group articles into segments
+segments = []
+current_segment = []
+current_count = 0
+
+for _, row in article_entity_counts.iterrows():
+    article_id = row["article_id"]
+    count = row["entity_count"]
+    if current_count + count > entities_per_segment and current_segment:
+        segments.append(current_segment)
+        current_segment = []
+        current_count = 0
+    current_segment.append(article_id)
+    current_count += count
+if current_segment:
+    segments.append(current_segment)
+
+# ——— Add segment selector to sidebar ———
+if "segment_index" not in st.session_state:
+    st.session_state.segment_index = 0
+
+segment_labels = [f"Segment {i+1}" for i in range(len(segments))]
+st.sidebar.selectbox("📚 Select Segment", segment_labels, key="segment_label")
+st.session_state.segment_index = segment_labels.index(st.session_state.segment_label)
+segment_id = st.session_state.segment_index + 1
+
+
+# Get articles for the selected segment
+selected_article_ids = segments[st.session_state.segment_index]
+filtered_df = lang_df[lang_df["article_id"].isin(selected_article_ids)].reset_index(drop=True)
+grouped = filtered_df.groupby("article_id")
+article_ids = list(grouped.groups.keys())
+
+# ——— The rest of your code (article_index, entity_index, etc.) remains unchanged but now uses `filtered_df` instead of full lang_df ———
+
+
 
 if st.session_state.article_index >= len(article_ids):
     st.success("🎉 You've completed all articles in this language!")
@@ -216,6 +281,51 @@ lang = row["lang"]
 record = {"start_offset": start, "end_offset": end, "predicted_fine_margin": predicted_roles}
 highlighted_html = highlight_entities(context, [record], "predicted_fine_margin")
 
+def parse_roles(predicted_roles):
+    import ast
+    if isinstance(predicted_roles, str):
+        try:
+            return list(ast.literal_eval(predicted_roles))
+        except Exception:
+            return [predicted_roles]
+    elif isinstance(predicted_roles, dict):
+        return list(predicted_roles.keys())
+    elif isinstance(predicted_roles, set):
+        return list(predicted_roles)
+    return list(predicted_roles) if isinstance(predicted_roles, list) else []
+
+def render_label_wise_questions(predicted_roles):
+    label_responses = {}
+    parsed_roles = parse_roles(predicted_roles)
+
+    for idx, label in enumerate(parsed_roles):
+        total_labels = len(parsed_roles)
+        label_num = idx + 1
+
+        st.markdown(f"### 🏷️ Label {label_num} of {total_labels}: **{label}**")
+
+        with st.container():
+            makes_sense = st.radio(
+                f"✅ Does the annotation for '{label}' make sense?",
+                ["Yes", "No", "Unsure"],
+                key=f"makes_sense_{label}"
+            )
+            confidence = st.slider(
+                f"🔍 Your confidence for '{label}'",
+                1, 5, 3,
+                key=f"confidence_{label}"
+            )
+
+            label_responses[label] = {
+                "label_index": label_num,
+                "total_labels": total_labels,
+                "makes_sense": makes_sense,
+                "confidence": confidence
+            }
+
+    return label_responses
+
+
 # ─── Layout ─────────────────────────────────────────────────────────
 left_col, right_col = st.columns([1.4, 1])
 with left_col:
@@ -238,36 +348,41 @@ with left_col:
     """, unsafe_allow_html=True)
     st.markdown(f"<div class='article-box'>{highlighted_html}</div>", unsafe_allow_html=True)
 
+
+
 with right_col:
     st.markdown("### 📝 Evaluation")
     st.markdown(f"**Entity Mention**: <span style='color:#007BFF; font-weight:600;'>{html.escape(mention)}</span>", unsafe_allow_html=True)
     st.markdown(f"**Main Role**: <span style='background:#cbd5e1;padding:4px 8px;border-radius:5px;margin:3px;display:inline-block;'>{html.escape(main_role)}</span>", unsafe_allow_html=True)
     display_role_info(predicted_roles, "Predicted Fine-Grained Roles")
-
     with st.form("eval_form"):
-        makes_sense = st.radio("✅ Does the annotation make sense?", ["Yes", "No", "Unsure"])
-        issues = st.radio("❗ What’s wrong? (if you selected No in the previous question)", ["Incorrect entity", "Incorrect fine-grained roles", "Not applicable"])
-        multi_labels = st.radio("How many labels are correct? (Answer if the entity has multiple fine-grained roles)", ["zero", "One", "Two", "Three or more", "Not applicable"])
-        confidence = st.slider("🔍 Confidence in your answer", 1, 5, 3)
+        label_feedback = render_label_wise_questions(predicted_roles)
+        submit = st.form_submit_button("Submit")
 
-        if st.form_submit_button("Submit"):
-            response = {
-                "session_name": session_name,
-                "timestamp": datetime.now().isoformat(),
-                "article_id": article_id,
-                "lang": lang,
-                "entity_mention": mention,
-                "main_role": main_role,
-                "predicted_roles": ", ".join(predicted_roles),
-                "makes_sense": makes_sense,
-                "issues": issues,
-                "multi_labels": multi_labels,
-                "confidence": confidence
-            }
-            st.session_state.responses.append(response)
-            st.session_state.last_response = response
+        if submit:
+            timestamp = datetime.now().isoformat()
+            for label, feedback in label_feedback.items():
+                response = {
+                    "session_name": session_name,
+                    "timestamp": timestamp,
+                    "segement": segment_id,
+                    "article_id": article_id,
+                    "lang": lang,
+                    "entity_mention": mention,
+                    "main_role": main_role,
+                    "predicted_role": label,
+                    "label_index": feedback["label_index"],
+                    "total_labels": feedback["total_labels"],
+                    "makes_sense": feedback["makes_sense"]
+                }
+                st.session_state.responses.append(response)
+
+            st.session_state.last_response = response  # Last one from loop
             st.session_state.just_submitted = True
             st.success("✅ Response submitted. Scroll down to continue.")
+
+
+    
 
 # ─── Download & Continue Block ─────────────────────────────────────
 if st.session_state.just_submitted and st.session_state.last_response:
