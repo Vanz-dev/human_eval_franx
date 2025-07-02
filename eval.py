@@ -338,7 +338,7 @@ def render_label_wise_questions(predicted_roles):
 
         with st.container():
             makes_sense = st.radio(
-                f"✅ Does the '{label}' make sense for this entity?",
+                f"✅ Does the label '{label}' make sense for this entity?",
                 ["Yes", "No", "Unsure"],
                 key=f"makes_sense_{label}"
             )
