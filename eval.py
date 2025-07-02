@@ -123,13 +123,15 @@ with st.expander("📘 Instructions for Evaluators", expanded=False):
     ##### 1. 👤 Identify Yourself
     Enter your **name** and press `Enter` to begin.
                 
-    ##### 2. 🌍 Select a Language
+    ##### 2. 🌍 Select a Language and 
     Use the sidebar dropdown to choose:
     - **en** – English  
     - **hi** – Hindi  
     - **ru** – Russian  
     - **bg** – Bulgarian  
     - **pt** – Portuguese
+                
+    Also select a segment from the language. Each segment has a subset of articles and entities. 
 
     ##### 3. 📄 Review the Article Carefully
     Pay attention to:
@@ -381,7 +383,15 @@ with left_col:
 
 
 with right_col:
+    
     st.markdown("### 📝 Evaluation")
+    st.markdown(
+        """
+        You will see the predicted annotation labels for the highlighted entity.  
+        Please carefully review if these labels **make sense** in the context of the article.  
+        Select your answers thoughtfully, and submit when ready.
+        """
+    )
     st.markdown(f"**Entity Mention**: <span style='color:#007BFF; font-weight:600;'>{html.escape(mention)}</span>", unsafe_allow_html=True)
     st.markdown(f"**Main Role**: <span style='background:#cbd5e1;padding:4px 8px;border-radius:5px;margin:3px;display:inline-block;'>{html.escape(main_role)}</span>", unsafe_allow_html=True)
     display_role_info(predicted_roles, "Predicted Fine-Grained Roles")
