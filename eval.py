@@ -413,7 +413,8 @@ with right_col:
                     "predicted_role": label,
                     "label_index": feedback["label_index"],
                     "total_labels": feedback["total_labels"],
-                    "makes_sense": feedback["makes_sense"]
+                    "makes_sense": feedback["makes_sense"],
+                    "confidence": feedback["confidence"]
                 }
                 st.session_state.responses.append(response)
 
