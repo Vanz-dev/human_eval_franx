@@ -116,16 +116,17 @@ if "last_response" not in st.session_state:
 # ─── Instructions ──────────────────────────────────────────────────
 with st.expander("📘 Instructions for Evaluators", expanded=False):
     st.markdown("""
-    ##### 1. 🌍 Select a Language
+                
+    ##### 1. 👤 Identify Yourself
+    Enter your **name** and press `Enter` to begin.
+                
+    ##### 2. 🌍 Select a Language
     Use the sidebar dropdown to choose:
     - **en** – English  
     - **hi** – Hindi  
     - **ru** – Russian  
     - **bg** – Bulgarian  
     - **pt** – Portuguese
-
-    ##### 2. 👤 Identify Yourself
-    Enter your **name** and press `Enter` to begin.
 
     ##### 3. 📄 Review the Article Carefully
     Pay attention to:
@@ -140,12 +141,15 @@ with st.expander("📘 Instructions for Evaluators", expanded=False):
     ##### 5. ⚠️ Submitting Your Response
     - Once you click **Submit**, your response is saved and **cannot be edited**.  
     - Submit only when you're confident.  
-    - You may skip to the next entity or article if needed.
 
     ##### 6. 🧘 Flexibility & Exit
     - You're **not required** to annotate everything.  
     - Continue for as long as you're comfortable.  
     - Close the tab anytime to exit.
+                
+    ##### 7. 📥 Download Your Responses
+    - After completing, you can download all your responses as a CSV file.
+    - Kindly send the downloaded file to the project team for analysis.
     """)
 
 
