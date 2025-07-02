@@ -246,8 +246,8 @@ with right_col:
 
     with st.form("eval_form"):
         makes_sense = st.radio("✅ Does the annotation make sense?", ["Yes", "No", "Unsure"])
-        issues = st.radio("❗ What’s wrong?", ["Incorrect entity", "Incorrect fine-grained roles", "Not applicable"])
-        multi_labels = st.radio("(Answer if the entity has multiple fine-grained roles) How many labels are correct?", ["zero", "One", "Two", "Three or more", "Not applicable"])
+        issues = st.radio("❗ What’s wrong? (if you selected No in the previous question)", ["Incorrect entity", "Incorrect fine-grained roles", "Not applicable"])
+        multi_labels = st.radio("How many labels are correct? (Answer if the entity has multiple fine-grained roles)", ["zero", "One", "Two", "Three or more", "Not applicable"])
         confidence = st.slider("🔍 Confidence in your answer", 1, 5, 3)
 
         if st.form_submit_button("Submit"):
