@@ -231,6 +231,17 @@ st.sidebar.selectbox("📚 Select Segment", segment_labels, key="segment_label")
 st.session_state.segment_index = segment_labels.index(st.session_state.segment_label)
 segment_id = st.session_state.segment_index + 1
 
+# Reset indices if segment changed
+if "previous_segment_index" not in st.session_state:
+    st.session_state.previous_segment_index = st.session_state.segment_index
+
+if st.session_state.segment_index != st.session_state.previous_segment_index:
+    st.session_state.article_index = 0
+    st.session_state.entity_index = 0
+    st.session_state.previous_segment_index = st.session_state.segment_index
+    st.rerun()
+
+
 
 # Get articles for the selected segment
 selected_article_ids = segments[st.session_state.segment_index]
@@ -242,25 +253,44 @@ article_ids = list(grouped.groups.keys())
 
 
 
-if st.session_state.article_index >= len(article_ids):
-    st.success("🎉 You've completed all articles in this language!")
-    if session_name and "responses" in st.session_state and st.session_state.responses:
-        st.markdown("### ✅ Download Your Responses")
+
+
+
+current_article_id = article_ids[st.session_state.article_index]
+article_df = grouped.get_group(current_article_id).reset_index(drop=True)
+total_entities_in_segment = len(filtered_df)
+current_entity = sum(
+    len(grouped.get_group(aid))
+    for aid in article_ids[:st.session_state.article_index]
+) + st.session_state.entity_index + 1
+
+progress_ratio = current_entity / total_entities_in_segment if total_entities_in_segment > 0 else 0
+progress_ratio = min(progress_ratio, 1.0)
+st.progress(progress_ratio)
+
+if progress_ratio >= 1.0:
+    st.balloons()
+    st.markdown("## 🎉 You're All Done!")
+    st.success(f"Thank you, **{session_name}**, for completing this segment in **{st.session_state.lang.upper()}**.")
+
+    if st.session_state.responses:
+        st.markdown("### 📥 Download Your Responses")
         response_df = pd.DataFrame(st.session_state.responses)
         csv = response_df.to_csv(index=False).encode('utf-8')
 
         st.download_button(
-            label="📥 Download All Responses",
+            label="📥 Download CSV File",
             data=csv,
             file_name=f"responses_{session_name}.csv",
             mime='text/csv'
         )
 
-    
+        st.markdown("📧 **Please send the downloaded file to [`Vanshikaa.Jani@mbzuai.ac.ae`](mailto:Vanshikaa.Jani@mbzuai.ac.ae) for evaluation.**")
+
+    st.info("You can close the tab or change the segment/language from the sidebar to continue.")
     st.stop()
 
-current_article_id = article_ids[st.session_state.article_index]
-article_df = grouped.get_group(current_article_id).reset_index(drop=True)
+
 
 if st.session_state.entity_index >= len(article_df):
     st.session_state.article_index += 1
@@ -385,29 +415,31 @@ with right_col:
     
 
 # ─── Download & Continue Block ─────────────────────────────────────
-if st.session_state.just_submitted and st.session_state.last_response:
-    st.markdown("---")
-    st.markdown("### ✅ Done Evaluating?")
 
-    response_df = pd.DataFrame(st.session_state.responses)
-    csv = response_df.to_csv(index=False).encode("utf-8")
+    if st.session_state.just_submitted and st.session_state.last_response:
+        st.markdown("---")
+        st.markdown("### ✅ Done Evaluating?")
 
-    st.download_button(
-        label="📥 Download All Responses",
-        data=csv,
-        file_name=f"responses_{session_name}.csv",
-        mime="text/csv"
-    )
+        response_df = pd.DataFrame(st.session_state.responses)
+        csv = response_df.to_csv(index=False).encode("utf-8")
 
-    # Save last response locally
-    os.makedirs("responses", exist_ok=True)
-    local_path = f"responses/responses_{lang}.csv"
-    pd.DataFrame([st.session_state.last_response]).to_csv(
-        local_path, mode="a", header=not os.path.exists(local_path), index=False
-    )
+        st.download_button(
+            label="📥 Download All Responses",
+            data=csv,
+            file_name=f"responses_{session_name}.csv",
+            mime="text/csv"
+        )
 
-    if st.button("➡️ Continue to Next"):
-        st.session_state.entity_index += 1
-        st.session_state.just_submitted = False
-        st.session_state.last_response = None
-        st.rerun()
+        # Save last response locally
+        os.makedirs("responses", exist_ok=True)
+        local_path = f"responses/responses_{lang}.csv"
+        pd.DataFrame([st.session_state.last_response]).to_csv(
+            local_path, mode="a", header=not os.path.exists(local_path), index=False
+        )
+
+        if st.button("➡️ Continue to Next"):
+            st.session_state.entity_index += 1
+            st.session_state.just_submitted = False
+            st.session_state.last_response = None
+            st.rerun()
+
